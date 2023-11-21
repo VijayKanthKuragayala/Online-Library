@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Status</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="../lib/jquery-3.7.0.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="text-center mb-4 h1 font-weight-bold">MY STATUS</h2>
+
+      <form id="memberStatusForm">
+        <div class="mb-3">
+          <label for="memberContact" class="form-label"
+            >Enter Member Contact Details</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="memberContact"
+            name="memberContact"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Get My Status</button>
+      </form>
+
+      <div id="bookIssueList" class="mt-4"></div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        $("#memberStatusForm").submit(function (event) {
+          event.preventDefault();
+
+          // Get member contact details
+          const memberContact = $("#memberContact").val();
+          $.ajax({
+            url: `/get-member-status/${memberContact}`,
+            method: "GET",
+            success: function (data) {
+              displayMemberStatus(data);
+            },
+            error: function (error) {
+              alert(error.responseJSON.message);
+              console.error("Error:", error.responseJSON.message);
+            },
+          });
+        });
+
+        function displayMemberStatus(data) {
+          $("#bookIssueList").empty();
+
+          if (data.issuedBooks && data.issuedBooks.length > 0) {
+            // Create a table and its header
+            const table = $('<table class="table"></table>');
+            const tableHeader =
+              "<thead><tr><th>Title</th><th>Author</th><th>Date Borrowed</th><th>Due Date</th><th>Days Until Due</th></tr></thead>";
+            table.append(tableHeader);
+
+            // Create table body and populate rows
+            const tableBody = $("<tbody></tbody>");
+            data.issuedBooks.forEach(function (book) {
+              const dueDate = new Date(book.due_date);
+              const currentDate = new Date();
+              const daysUntilDue = Math.floor(
+                (dueDate - currentDate) / (1000 * 60 * 60 * 24)
+              );
+
+              const tableRow = `<tr>
+              <td>${book.title}</td>
+              <td>${book.author}</td>
+              <td>${book.issuance_date}</td>
+              <td>${book.due_date}</td>
+              <td>${daysUntilDue} days</td>
+            </tr>`;
+
+              tableBody.append(tableRow);
+            });
+
+            // Append table body to the table
+            table.append(tableBody);
+
+            // Append the table to the bookIssueList div
+            $("#bookIssueList").append(table);
+          } else {
+            // Display a message if no books are issued
+            $("#bookIssueList").html("<p>No books currently issued.</p>");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

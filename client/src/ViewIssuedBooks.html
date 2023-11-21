@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Issued Books</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="../lib/jquery-3.7.0.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="text-center mb-4 h1 font-weight-bold">ISSUED BOOKS LIST</h2>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Member Contact</th>
+            <th scope="col">Book Title</th>
+            <th scope="col">Issuance Date</th>
+            <th scope="col">Due Date</th>
+          </tr>
+        </thead>
+        <tbody id="issuedBooksTableBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Function to display issued books in the table
+        function displayIssuedBooks(issuedBooksData) {
+          const issuedBooksTableBody = document.getElementById(
+            "issuedBooksTableBody"
+          );
+
+          // Clear existing content in the table
+          issuedBooksTableBody.innerHTML = "";
+
+          // Loop through the issued books and create table rows
+          issuedBooksData.forEach((book) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td>${book.id}</td>
+        <td>${book.member_contact}</td>
+        <td>${book.book_title}</td>
+        <td>${book.issuance_date}</td>
+        <td>${book.due_date}</td>
+      `;
+
+            issuedBooksTableBody.appendChild(row);
+          });
+        }
+
+        function fetchIssuedBooks() {
+          $.ajax({
+            url: "/all-issued-books",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+              displayIssuedBooks(data.issuedBooks);
+            },
+            error: function (error) {
+              console.error("Error:", error);
+            },
+          });
+        }
+
+        fetchIssuedBooks();
+      });
+    </script>
+  </body>
+</html>

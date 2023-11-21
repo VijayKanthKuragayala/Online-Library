@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Members</title>
+    <!-- Include Bootstrap CSS for styling (optional) -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="../lib/jquery-3.7.0.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2 class="text-center mb-4 h1 font-weight-bold">MEMBERS LIST</h2>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Contact Details</th>
+            <th scope="col">Membership Status</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody id="membersTableBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        function deleteMember(contactDetails) {
+          // Send a DELETE request to the server
+          $.ajax({
+            url: `/delete-member/${contactDetails}`,
+            type: "DELETE",
+            contentType: "application/json",
+            success: function (data) {
+              alert(data.message);
+              console.log(data.message);
+            },
+            error: function (error) {
+              alert(error.responseJSON.message);
+              console.error("Error:", error.responseJSON.message);
+            },
+          });
+        }
+
+        // Function to display members in the table
+        function displayMembers(membersData) {
+          $("#membersTableBody").empty();
+          // create table rows
+          membersData.forEach((member, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+        <td>${member.name}</td>
+        <td>${member.contact_details}</td>
+        <td>${member.membership_status} </td>
+        <td><button id="member_${index}" class="btn btn-danger btn-sm">Delete</button></td>`;
+            membersTableBody.appendChild(row);
+            $(`#member_${index}`).on("click", () => {
+              $("#membersTableBody").empty();
+              deleteMember(member.contact_details);
+              // refresh list
+              fetchMembers();
+            });
+          });
+        }
+
+        // Function to fetch members data from the server
+        function fetchMembers() {
+          $.ajax({
+            url: "/all-members",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+              displayMembers(data.members);
+            },
+            error: function (error) {
+              console.error("Error fetching members:", error);
+            },
+          });
+        }
+
+        fetchMembers();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+    <link href="../style/style.css" rel="stylesheet" />
+    <script src="../lib/jquery-3.7.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <body>
+    <div class="container-full background-image-style">
+      <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="javascript:void(0)">
+            <img
+              src="/assets/icon.png"
+              alt="Library Logo"
+              style="width: 40px"
+              class="rounded-pill"
+            />
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mynavbar"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item" id="addBook">
+                <a class="nav-link" href="/add-book">Add Books</a>
+              </li>
+              <li class="nav-item" id="addMember">
+                <a class="nav-link" href="/add-member">Add Member</a>
+              </li>
+              <li class="nav-item" id="viewMember">
+                <a class="nav-link" href="/view-members">View Member</a>
+              </li>
+              <li class="nav-item" id="issueBook">
+                <a class="nav-link" href="/issue-book">Issue Book</a>
+              </li>
+              <li class="nav-item" id="issuedBook">
+                <a class="nav-link" href="/issued-books">Issued Books</a>
+              </li>
+              <li class="nav-item" id="returnBook">
+                <a class="nav-link" href="/return-book">Return Book</a>
+              </li>
+              <li class="nav-item" id="myStatus">
+                <a class="nav-link" href="/my-status">My Status</a>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input
+                id="search"
+                class="form-control me-2"
+                type="text"
+                placeholder="Search"
+              />
+              <button class="btn btn-primary" type="button">Search</button>
+              <a
+                id="logout"
+                type="submit"
+                class="btn btn-danger m-2"
+                href="/home"
+                onclick="logout()"
+              >
+                Logout
+              </a>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="container-full">
+        <div class="container-full d-flex flex-row">
+          <!-- Book items-->
+          <div id="bookContainer" class="container"></div>
+          <!--Categories-->
+          <div class="col-4 on-page-categories text-muted">
+            <p class="h2">GENRE</p>
+            <div class="grid-auto sticky-top">
+              <span id="biography">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/biography.png"
+                />
+                <p>Biography</p>
+              </span>
+              <span id="computer_science">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/computer_science.png"
+                />
+                <p>Computer Science</p>
+              </span>
+              <span id="fitness">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/fitness.png"
+                />
+                <p>Fitness</p>
+              </span>
+              <span id="history">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/history.png"
+                />
+                <p>History</p>
+              </span>
+              <span id="lifestyle">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/lifestyle.png"
+                />
+                <p>LifeStyle</p>
+              </span>
+              <span id="mathematics">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/mathematics.png"
+                />
+                <p>Mathematics</p>
+              </span>
+              <span id="philosophy">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/philosophy.png"
+                />
+                <p>philosophy</p>
+              </span>
+              <span id="politics">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/politics.png"
+                />
+                <p>Politics</p>
+              </span>
+              <span id="religion">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/religion.png"
+                />
+                <p>Religion</p>
+              </span>
+              <span id="all">
+                <img
+                  class="icon-category rounded-pill border p-1"
+                  src="/assets/all.png"
+                />
+                <p>All</p>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      let books = [];
+      let session = undefined;
+
+      function logout() {
+        $.ajax({
+          url: "/admin/logout",
+          method: "GET",
+          dataType: "json",
+          success: function (data) {
+            alert(data.message);
+          },
+          error: function (error) {
+            alert(error.responseJSON.error);
+            console.error("Error fetching books:", error);
+          },
+        });
+      }
+      function deleteBook(title) {
+        $.ajax({
+          url: `/delete-book/${title}`,
+          type: "DELETE",
+          success: function (data) {
+            alert(data.message);
+            if (data.deleted) {
+              //refresh list
+              fetchBooks();
+            }
+            console.log(data.message);
+          },
+          error: function (error) {
+            alert(error.responseJSON.message);
+            console.error("Error:", error.responseJSON.message);
+          },
+        });
+      }
+      const populateBooks = (values) => {
+        $.each(values, (index, book) => {
+          createBookItem(
+            index,
+            book.title,
+            book.author,
+            book.genre,
+            book.description
+          );
+        });
+      };
+      function fetchBooks() {
+        $.ajax({
+          url: "/all-books",
+          method: "GET",
+          dataType: "json",
+          success: function (data) {
+            books = data.books;
+            populateBooks(books);
+          },
+          error: function (error) {
+            console.error("Error fetching books:", error);
+          },
+        });
+      }
+
+      function filterGenres() {
+        const genres = [
+          { id: "biography", genre: "biography" },
+          { id: "computer_science", genre: "computer science" },
+          { id: "fitness", genre: "fitness" },
+          { id: "history", genre: "history" },
+          { id: "lifestyle", genre: "lifestyle" },
+          { id: "mathematics", genre: "mathematics" },
+          { id: "philosophy", genre: "philosophy" },
+          { id: "politics", genre: "politics" },
+          { id: "religion", genre: "religion" },
+          { id: "all", genre: "All" },
+        ];
+
+        $.each(genres, (index, obj) => {
+          $(`#${obj.id}`).on("click", () => {
+            $("#bookContainer").empty();
+            if (obj.genre === "All") {
+              populateBooks(books);
+            } else
+              populateBooks(
+                books.filter((book) =>
+                  book.genre.toLowerCase().includes(obj.genre)
+                )
+              );
+          });
+        });
+      }
+      // Function to create a book item and append it to the container
+      function createBookItem(index, title, author, genre, description) {
+        var bookItem = $(
+          '<div class="row m-2 col border">' +
+            '<div class="col-2">' +
+            '<img class="icon rounded-pill thumbnail" width="100%" height="100%" src="/assets/book_placeholder.png" alt="Thumbnail Logo">' +
+            "</div>" +
+            '<div class="col-8 d-flex flex-column p-1">' +
+            '<div class="col h3 text-dark">' +
+            title +
+            "</div>" +
+            '<div class="col text-primary">(' +
+            author +
+            ") (" +
+            genre +
+            ")</div>" +
+            '<div class="col text-muted">' +
+            description +
+            "</div>" +
+            "</div>" +
+            // Add a delete button
+            '<div class="col-2">' +
+            `<button id = "book_${index}" class="btn btn-danger btn-sm p-2 m-2 ${
+              session === undefined ? "d-none" : ""
+            }">Delete</button>` +
+            "</div>" +
+            "</div>"
+        );
+
+        // Append the bookItem to a container in your HTML
+        $("#booksContainer").append(bookItem);
+
+        // Append the book item to the container
+        $("#bookContainer").append(bookItem);
+        $(`#book_${index}`).on("click", () => {
+          $("#bookContainer").empty();
+          deleteBook(title);
+          fetchBooks();
+        });
+      }
+      $(document).ready(function () {
+        $.ajax({
+          url: "/admin/dashboard",
+          method: "GET",
+          dataType: "json",
+          success: function (data) {
+            if (data.admin) alert(data.message);
+            session = data.admin;
+            // fetch all books
+            fetchBooks();
+            const sleep = (ms) => {
+              return new Promise((resolve) => setTimeout(resolve, ms));
+            };
+            $("#search").on("keydown keyup", (event) => {
+              const searchValue = $("#search").val();
+              sleep(1000).then(() => {
+                $("#bookContainer").empty();
+                populateBooks(
+                  books.filter((book) =>
+                    book.title.toLowerCase().includes(searchValue.toLowerCase())
+                  )
+                );
+              });
+            });
+
+            // if the session is null remove the admin features
+            if (!session) {
+              $("#addBook").addClass("d-none");
+              $("#addMember").addClass("d-none");
+              $("#viewMember").addClass("d-none");
+              $("#issueBook").addClass("d-none");
+              $("#issuedBook").addClass("d-none");
+              $("#returnBook").addClass("d-none");
+              $("#logout").addClass("d-none");
+            }
+
+            //init filter genres
+            filterGenres();
+          },
+          error: function (error) {
+            console.error("Error fetching books:", error);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

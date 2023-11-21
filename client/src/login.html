@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+    <!-- Include Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="../style/style.css" rel="stylesheet" />
+    <title>Login Form</title>
+  </head>
+  <body
+    class="background-image-style"
+    style="background-image: url('/assets/login_background.jpg')"
+  >
+    <div class="container mt-5" style="height: 80vh">
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title text-center mb-4 h2">Login</h5>
+
+              <!-- Login Form -->
+              <form action="/admin/login" method="POST">
+                <!-- Username -->
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    required
+                  />
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    required
+                  />
+                </div>
+
+                <a type="submit" class="btn btn-primary m-2" href="/home">
+                  Continue as Member
+                </a>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100">
+                  Login
+                </button>
+              </form>
+              <!-- End Login Form -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
