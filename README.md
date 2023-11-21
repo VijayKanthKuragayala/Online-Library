@@ -7,7 +7,7 @@ If the project has a package.json file, you need to install the project dependen
 
 - npm install
 ### Run the Project:
-After installing the dependencies, you can run the project. Depending on the project's structure and the presence of a start script in the package.json file, you can use either node or a custom command:
+After installing the dependencies, you can run the project. Go to /server/ directory where the package.json file is located then execute the following command:
 - npm run dev
 - Then open http://localhost:5000/login/form
 
